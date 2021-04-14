@@ -341,7 +341,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 958583944}
         m_TargetAssemblyTypeName: Board, Assembly-CSharp
-        m_MethodName: Load
+        m_MethodName: LoadCurrentState
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1009,7 +1009,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 958583944}
         m_TargetAssemblyTypeName: Board, Assembly-CSharp
-        m_MethodName: Save
+        m_MethodName: SaveCurrentState
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1142,7 +1142,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 958583944}
         m_TargetAssemblyTypeName: Board, Assembly-CSharp
-        m_MethodName: Load
+        m_MethodName: LoadCurrentState
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

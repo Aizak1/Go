@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    private BoardState initialState;
+    private BoardState currentState;
     [SerializeField] private GameObject border;
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private UISwitcher uiSwitcher;
@@ -43,25 +43,36 @@ public class Board : MonoBehaviour
             return json;
         }
     }
-    public void Save(string path)
+    public void Save(string path,BoardState boardState)
     {
-        string json = Serialization(initialState);
+        string json = Serialization(boardState);
         SaveToJsonFile(path, json);
     }
-    public void Load(string path)
+    public BoardState Load(string path)
+    {
+        string json = LoadFromJsonFile(path);
+        BoardState boardState = Deserialization(json);
+        return boardState;
+    }
+
+    public void SaveCurrentState(string path)
+    {
+        Save(path, currentState);
+    }
+
+    public void LoadCurrentState(string path)
     {
         DestroyBoard();
-        string json = LoadFromJsonFile(path);
-        initialState = Deserialization(json);
-        CreateBoard(initialState);
+        currentState = Load(path);
+        CreateBoard(currentState);
     }
 
     public void NewGame(int borderSize)
     {
-        initialState.size = borderSize;
-        initialState.blackDeathCounter = 0;
-        initialState.whiteDeathCounter = 0;
-        CreateBoard(initialState);
+        currentState.size = borderSize;
+        currentState.blackDeathCounter = 0;
+        currentState.whiteDeathCounter = 0;
+        CreateBoard(currentState);
     }
 
     private void CreateBoard(BoardState boardState)
