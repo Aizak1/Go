@@ -16,8 +16,10 @@ public class UISwitcher : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if(!mainMenu.enabled && ! boardSizeMenu.enabled)
+            if(!mainMenu.enabled && !boardSizeMenu.enabled)
+            {
                 pauseMenu.enabled = !pauseMenu.enabled;
+            }   
         }
     }
     public void ChooseConrectUi(Canvas concrectCanvas)

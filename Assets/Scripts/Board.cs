@@ -9,10 +9,28 @@ public class Board : MonoBehaviour
     [SerializeField] private GameObject border;
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private UISwitcher uiSwitcher;
+    [SerializeField] private GameObject whiteFigurePrefab;
+    [SerializeField] private GameObject blackFigurePrefab;
     private const float cellStartCoordinate = 0.5f;
     private const float borderOffset = 0.01f;
     private const float highOfTheCamera = 7.23f;
     private readonly Vector3 borderInitialScale = new Vector3(0.1f, 1, 0.1f);
+    private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
+
+    public void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            var mouseDownPosition = RecordMousePosition();
+            if (!IsOutOfBounds(currentState, mouseDownPosition))
+            {
+                var figureData = 
+                    CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
+                GenerateFigure(figureData);
+                currentState.isWhiteTurn = !currentState.isWhiteTurn;
+            }
+        }
+    }
 
     public string Serialization(BoardState boardState)
     {
@@ -43,12 +61,12 @@ public class Board : MonoBehaviour
             return json;
         }
     }
-    public void Save(string path,BoardState boardState)
+    public void SaveBoardState(string path,BoardState boardState)
     {
         string json = Serialization(boardState);
         SaveToJsonFile(path, json);
     }
-    public BoardState Load(string path)
+    public BoardState LoadBoardState(string path)
     {
         string json = LoadFromJsonFile(path);
         BoardState boardState = Deserialization(json);
@@ -57,21 +75,24 @@ public class Board : MonoBehaviour
 
     public void SaveCurrentState(string path)
     {
-        Save(path, currentState);
+        SaveBoardState(path, currentState);
     }
 
     public void LoadCurrentState(string path)
     {
         DestroyBoard();
-        currentState = Load(path);
+        currentState.figuresOnBoardData = new List<FigureData>();
+        currentState = LoadBoardState(path);
         CreateBoard(currentState);
     }
 
-    public void NewGame(int borderSize)
+    public void NewGame(int boardSize)
     {
-        currentState.size = borderSize;
+        currentState.size = boardSize;
         currentState.blackDeathCounter = 0;
         currentState.whiteDeathCounter = 0;
+        currentState.isWhiteTurn = true;
+        currentState.figuresOnBoardData = new List<FigureData>();
         CreateBoard(currentState);
     }
 
@@ -91,9 +112,15 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < boardState.size; j++)
             {
-                Vector3 spawnPos = new Vector3(cellStartCoordinate + i, 1, cellStartCoordinate + j);
-                Instantiate(cellPrefab, spawnPos, Quaternion.identity,transform);
+               Vector3 spawnPos = new Vector3(cellStartCoordinate + i, 1, cellStartCoordinate + j);
+               Instantiate(cellPrefab, spawnPos, Quaternion.identity,transform);
             }
+        }
+        int countOfElements = boardState.figuresOnBoardData.Count;
+        for (int i = 0; i < countOfElements; i++)
+        {
+            FigureData figureData = boardState.figuresOnBoardData[i];
+            GenerateFigure(figureData);
         }
         border.transform.localScale = new Vector3(
             boardState.size * borderInitialScale.x + borderOffset,
@@ -110,6 +137,12 @@ public class Board : MonoBehaviour
         {
             Destroy(cell.gameObject);
         }
+        var figures = FindObjectsOfType<Figure>();
+        foreach (var figure in figures)
+        {
+            Destroy(figure.gameObject);
+        }
+        currentState.figuresOnBoardData.Clear();
         border.transform.localScale = borderInitialScale;
         border.SetActive(false);
     }
@@ -117,5 +150,48 @@ public class Board : MonoBehaviour
     {
         DestroyBoard();
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
+    }
+    public void GenerateFigure(FigureData figureData)
+    {
+        Vector3 figurePos = new Vector3(figureData.x, 1, figureData.y);
+        GameObject figureGameObject;
+        if (figureData.isWhite)
+           figureGameObject = Instantiate(whiteFigurePrefab, figurePos, Quaternion.identity);
+        else
+           figureGameObject = Instantiate(blackFigurePrefab, figurePos, Quaternion.identity);
+        figureGameObject.GetComponent<Figure>().Data = figureData;
+    }
+    public FigureData CreateFigureData(int x,int y, ref BoardState boardState)
+    {
+        FigureData data = new FigureData
+        {
+            x = x,
+            y = y,
+            isWhite = boardState.isWhiteTurn
+        };
+        boardState.figuresOnBoardData.Add(data);
+        return data;
+    }
+
+    public Vector2Int RecordMousePosition()
+    {
+        Vector2Int mouseDownPosition = Vector2Int.zero - Vector2Int.one;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            mouseDownPosition = new Vector2Int((int)(hit.point.x + cellOffset.x),
+                                               (int)(hit.point.z + cellOffset.y));
+        }
+        return mouseDownPosition;
+    }
+
+    private bool IsOutOfBounds(BoardState boardState,Vector2Int position)
+    {
+        if (position.x < 0 || position.y < 0 || position.x > Mathf.Pow(boardState.size, 2)
+        || position.y > Mathf.Pow(boardState.size, 2))
+        {
+            return true;
+        }
+        return false;        
     }
 }

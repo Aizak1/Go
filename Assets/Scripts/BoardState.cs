@@ -7,4 +7,7 @@ public struct BoardState
     public int size;
     public int whiteDeathCounter;
     public int blackDeathCounter;
+    public bool isWhiteTurn;
+    public List<FigureData> figuresOnBoardData;
+    
 }

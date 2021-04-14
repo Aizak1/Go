@@ -2619,6 +2619,8 @@ MonoBehaviour:
   border: {fileID: 694935051}
   cellPrefab: {fileID: 889582425607217441, guid: bbd29c78e46ac8b48a11a2359d3d55d7, type: 3}
   uiSwitcher: {fileID: 512778175}
+  whiteFigurePrefab: {fileID: 2240771486461174763, guid: 0a6b7a48d9885e540994c42286872539, type: 3}
+  blackFigurePrefab: {fileID: 2240771486461174763, guid: 710b944d0d5f0bb4189425e8bbbfce7d, type: 3}
 --- !u!4 &958583945
 Transform:
   m_ObjectHideFlags: 0
