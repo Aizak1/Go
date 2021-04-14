@@ -7,6 +7,7 @@ public class UISwitcher : MonoBehaviour
     [SerializeField] private Canvas mainMenu;
     [SerializeField] private Canvas boardSizeMenu;
     [SerializeField] private Canvas pauseMenu;
+    [SerializeField] private Board  board;
 
     public Canvas MainMenu { get => mainMenu; set => mainMenu = value; }
     public Canvas BoardSizeMenu { get => boardSizeMenu; set => boardSizeMenu = value; }
@@ -19,6 +20,7 @@ public class UISwitcher : MonoBehaviour
             if(!mainMenu.enabled && !boardSizeMenu.enabled)
             {
                 pauseMenu.enabled = !pauseMenu.enabled;
+                board.enabled = !board.enabled;
             }   
         }
     }
@@ -26,6 +28,7 @@ public class UISwitcher : MonoBehaviour
     {
         HideAllUi();
         concrectCanvas.enabled = true;
+        board.enabled = true;
     }
     public void HideAllUi()
     {

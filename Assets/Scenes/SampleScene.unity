@@ -1355,6 +1355,7 @@ MonoBehaviour:
   mainMenu: {fileID: 632544093}
   boardSizeMenu: {fileID: 1850818258}
   pauseMenu: {fileID: 1304415847}
+  board: {fileID: 958583944}
 --- !u!4 &512778176
 Transform:
   m_ObjectHideFlags: 0
