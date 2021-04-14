@@ -80,8 +80,8 @@ public class Board : MonoBehaviour
 
     public void LoadCurrentState(string path)
     {
-        DestroyBoard();
         currentState.figuresOnBoardData = new List<FigureData>();
+        DestroyBoard();
         currentState = LoadBoardState(path);
         CreateBoard(currentState);
     }
