@@ -21,7 +21,7 @@ public class Board : MonoBehaviour
         enabled = false;
     }
 
-    public void Update()
+    private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
@@ -31,7 +31,15 @@ public class Board : MonoBehaviour
                 var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
                 GenerateFigure(figureData);
+                var figures = FindObjectsOfType<Figure>();
                 currentState.isWhiteTurn = !currentState.isWhiteTurn;
+                var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
+                foreach (var item in figures)
+                {
+                    if (figuresDataToDestroy.Contains(item.Data))
+                        DestroyFigure(item, ref currentState);
+                }
+
             }
         }
     }
@@ -168,6 +176,7 @@ public class Board : MonoBehaviour
            figureGameObject = Instantiate(blackFigurePrefab, figurePos, Quaternion.identity);
         figureGameObject.GetComponent<Figure>().Data = figureData;
     }
+
     public FigureData CreateFigureData(int x,int y, ref BoardState boardState)
     {
         FigureData data = new FigureData
@@ -191,6 +200,12 @@ public class Board : MonoBehaviour
         }
         return mouseDownPosition;
     }
+    public void DestroyFigure(Figure figure, ref BoardState boardState)
+    {
+        boardState.figuresOnBoardData.Remove(figure.Data);
+        figure.Data = null;
+        Destroy(figure.gameObject);
+    }
 
-   
+
 }
