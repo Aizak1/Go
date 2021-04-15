@@ -28,12 +28,20 @@ public class Board : MonoBehaviour
             var mouseDownPosition = RecordMousePosition();
             if (BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
             {
+                var boardCopyState = 
+                   BoardLogic.SimulateMove(currentState, mouseDownPosition.x, mouseDownPosition.y);
+                var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
+                foreach (var item in figuresDataToDestroy)
+                {
+                    if (item.isWhite == currentState.isWhiteTurn)
+                        return;
+                }
                 var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
                 GenerateFigure(figureData);
                 var figures = FindObjectsOfType<Figure>();
                 currentState.isWhiteTurn = !currentState.isWhiteTurn;
-                var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
+                figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
                 foreach (var item in figures)
                 {
                     if (figuresDataToDestroy.Contains(item.Data))

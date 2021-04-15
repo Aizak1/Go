@@ -17,7 +17,7 @@ public static class BoardLogic
 
         if (board[finalPosition.x, finalPosition.y] != null)
             return false;
-
+        
         List<Vector2Int> cellsAround = GetAroundCellsCoords(finalPosition);
         foreach (var cell in cellsAround)
         {
@@ -147,5 +147,17 @@ public static class BoardLogic
             new Vector2Int(finalPosition.x - 1, finalPosition.y)
         };
         return cellsAround;
+    }
+    public static BoardState SimulateMove(BoardState currentBoardState,int x,int y)
+    {
+        BoardState boardStateCopy = currentBoardState;
+        FigureData data = new FigureData
+        {
+            x = x,
+            y = y,
+            isWhite = currentBoardState.isWhiteTurn
+        };
+        boardStateCopy.figuresOnBoardData.Add(data);
+        return boardStateCopy;
     }
 }
