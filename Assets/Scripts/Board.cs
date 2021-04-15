@@ -16,14 +16,16 @@ public class Board : MonoBehaviour
     private const float highOfTheCamera = 7.23f;
     private readonly Vector3 borderInitialScale = new Vector3(0.1f, 1, 0.1f);
     private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
+    private void Start()
+    {
+        enabled = false;
+    }
 
     public void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             var mouseDownPosition = RecordMousePosition();
-            if (IsOutOfBounds(currentState, mouseDownPosition))
-                return;
             if (BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
             {
                 var figureData =
@@ -153,6 +155,7 @@ public class Board : MonoBehaviour
     public void Menu()
     {
         DestroyBoard();
+        enabled = false;
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
     }
     public void GenerateFigure(FigureData figureData)
@@ -189,13 +192,5 @@ public class Board : MonoBehaviour
         return mouseDownPosition;
     }
 
-    private bool IsOutOfBounds(BoardState boardState,Vector2Int position)
-    {
-        if (position.x < 0 || position.y < 0 || position.x > Mathf.Pow(boardState.size, 2)
-        || position.y > Mathf.Pow(boardState.size, 2))
-        {
-            return true;
-        }
-        return false;        
-    }
+   
 }
