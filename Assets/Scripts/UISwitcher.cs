@@ -28,7 +28,6 @@ public class UISwitcher : MonoBehaviour
     {
         HideAllUi();
         concrectCanvas.enabled = true;
-        board.enabled = true;
     }
     public void HideAllUi()
     {

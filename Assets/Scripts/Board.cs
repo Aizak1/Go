@@ -22,10 +22,12 @@ public class Board : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             var mouseDownPosition = RecordMousePosition();
-            if (!IsOutOfBounds(currentState, mouseDownPosition))
+            if (IsOutOfBounds(currentState, mouseDownPosition))
+                return;
+            if (BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
             {
-                var figureData = 
-                    CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
+                var figureData =
+                CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
                 GenerateFigure(figureData);
                 currentState.isWhiteTurn = !currentState.isWhiteTurn;
             }
@@ -80,6 +82,7 @@ public class Board : MonoBehaviour
 
     public void LoadCurrentState(string path)
     {
+        enabled = true;
         currentState.figuresOnBoardData = new List<FigureData>();
         DestroyBoard();
         currentState = LoadBoardState(path);
@@ -88,6 +91,7 @@ public class Board : MonoBehaviour
 
     public void NewGame(int boardSize)
     {
+        enabled = true;
         currentState.size = boardSize;
         currentState.blackDeathCounter = 0;
         currentState.whiteDeathCounter = 0;
