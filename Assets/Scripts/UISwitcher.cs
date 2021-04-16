@@ -24,11 +24,13 @@ public class UISwitcher : MonoBehaviour
             }   
         }
     }
+
     public void ChooseConrectUi(Canvas concrectCanvas)
     {
         HideAllUi();
         concrectCanvas.enabled = true;
     }
+
     public void HideAllUi()
     {
         mainMenu.enabled = false;

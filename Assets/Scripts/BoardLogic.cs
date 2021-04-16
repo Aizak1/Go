@@ -13,13 +13,18 @@ public static class BoardLogic
             board[figureData.x, figureData.y] = figureData;
         }
         if (IsOutOfBounds(boardState, finalPosition))
+        {
             return false;
-
+        }
+            
         if (board[finalPosition.x, finalPosition.y] != null)
+        {
             return false;
+        }
 
         return true;
     }
+
     private static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
     {
         if (position.x < 0 || position.y < 0 || position.x > boardState.size
@@ -29,6 +34,7 @@ public static class BoardLogic
         }
         return false;
     }
+
     public static List<FigureData> FindFiguresDataToRemove(BoardState boardState)
     {
         List<FigureData> figuresDataToRemove = new List<FigureData>();
@@ -40,8 +46,10 @@ public static class BoardLogic
         List<List<FigureData>> groups = FindGroups(boardState, board);
         foreach (var group in groups)
         {
-            if (!GroupWillBeAlive(boardState,group,board))
+            if (!GroupWillBeAlive(boardState, group, board))
+            {
                 figuresDataToRemove.AddRange(group);
+            }   
         }
         return figuresDataToRemove;
 
@@ -57,9 +65,14 @@ public static class BoardLogic
             foreach (var cell in aroundCells)
             {
                 if (IsOutOfBounds(boardState, cell))
+                {
                     continue;
+                }
                 if (board[cell.x, cell.y] == null)
+                {
                     return true;
+                }
+                   
             }
         }
         return false;
@@ -86,6 +99,7 @@ public static class BoardLogic
         
         return groups;
     }
+
     private static void CreateGroup(BoardState boardState,FigureData[,] board,
                                     Vector2Int currentPosition,ref List<FigureData> group)
     {
@@ -94,7 +108,9 @@ public static class BoardLogic
         foreach (var cell in aroundCells)
         {
             if (IsOutOfBounds(boardState, cell))
+            {
                 continue;
+            }   
             if (board[cell.x, cell.y] != null
             && board[cell.x, cell.y].isWhite == board[currentPosition.x, currentPosition.y].isWhite)
             {
@@ -110,7 +126,9 @@ public static class BoardLogic
         foreach (var cell in aroundCells)
         {
             if (IsOutOfBounds(boardState, cell))
+            {
                 continue;
+            }
             if(board[cell.x, cell.y]!=null && 
                board[cell.x,cell.y].isWhite == board[currentPosition.x, currentPosition.y].isWhite)
             {
@@ -125,6 +143,7 @@ public static class BoardLogic
         }
         
     }
+
     private static List<Vector2Int> GetAroundCellsCoords(Vector2Int finalPosition)
     {
         List<Vector2Int> cellsAround = new List<Vector2Int>()
@@ -136,6 +155,7 @@ public static class BoardLogic
         };
         return cellsAround;
     }
+
     public static BoardState SimulateMove(BoardState currentBoardState,int x,int y)
     {
         BoardState boardStateCopy;

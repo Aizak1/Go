@@ -34,7 +34,9 @@ public class Board : MonoBehaviour
                 foreach (var item in figuresDataToDestroy)
                 {
                     if (item.isWhite == currentState.isWhiteTurn)
+                    {
                         return;
+                    }
                 }
                 var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
@@ -45,7 +47,9 @@ public class Board : MonoBehaviour
                 foreach (var item in figures)
                 {
                     if (figuresDataToDestroy.Contains(item.Data))
+                    {
                         DestroyFigure(item, ref currentState);
+                    }
                 }
 
             }
@@ -72,6 +76,7 @@ public class Board : MonoBehaviour
             streamWriter.Write(json);
         }
     }
+
     public string LoadFromJsonFile(string path)
     {
         string validpath = Path.Combine(Application.streamingAssetsPath, path);
@@ -81,11 +86,14 @@ public class Board : MonoBehaviour
             return json;
         }
     }
+
     public void SaveBoardState(string path,BoardState boardState)
     {
         string json = Serialization(boardState);
+
         SaveToJsonFile(path, json);
     }
+
     public BoardState LoadBoardState(string path)
     {
         string json = LoadFromJsonFile(path);
