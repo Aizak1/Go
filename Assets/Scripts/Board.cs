@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -27,49 +28,57 @@ public class Board : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             var mouseDownPosition = RecordMousePosition();
-            if (BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
+            if (!BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
             {
-                var boardCopyState =
-                   BoardLogic.SimulateMove(currentState, mouseDownPosition.x, mouseDownPosition.y);
-                var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
-                foreach (var item in figuresDataToDestroy)
+                return;
+            }
+            var boardCopyState =
+                 BoardLogic.SimulateMove(currentState, mouseDownPosition.x, mouseDownPosition.y);
+            var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
+            foreach (var item in figuresDataToDestroy)
+            {
+                if (item.isWhite == currentState.isWhiteTurn)
                 {
-                    if (item.isWhite == currentState.isWhiteTurn)
-                    {
-                        return;
-                    }
+                    return;
                 }
-                var figureData =
+            }
+            var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
-                GenerateFigure(figureData);
-                var figures = FindObjectsOfType<Figure>();
-                currentState.isWhiteTurn = !currentState.isWhiteTurn;
-                figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
-                foreach (var item in figures)
+            GenerateFigure(figureData);
+            var figures = FindObjectsOfType<Figure>();
+            currentState.isWhiteTurn = !currentState.isWhiteTurn;
+            figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
+            foreach (var item in figures)
+            {
+                if (figuresDataToDestroy.Contains(item.Data))
                 {
-                    if (figuresDataToDestroy.Contains(item.Data))
+                    if (item.Data.isWhite)
                     {
-                        DestroyFigure(item, ref currentState);
+                        currentState.whiteDeathCounter++;
                     }
+                    else
+                    {
+                        currentState.blackDeathCounter++;
+                    }
+                    DestroyFigure(item, ref currentState);
                 }
-
             }
         }
     }
 
-    public string Serialization(BoardState boardState)
+    private string Serialization(BoardState boardState)
     {
         string json = JsonUtility.ToJson(boardState);
         return json;
     }
 
-    public BoardState Deserialization(string json)
+    private BoardState Deserialization(string json)
     {
         var boardState = JsonUtility.FromJson<BoardState>(json);
         return boardState;
     }
 
-    public void SaveToJsonFile(string path,string json)
+    private void SaveToJsonFile(string path,string json)
     {
         using (StreamWriter streamWriter = new StreamWriter(path))
         {
@@ -77,7 +86,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    public string LoadFromJsonFile(string path)
+    private string LoadFromJsonFile(string path)
     {
         using (StreamReader reader = new StreamReader(path))
         {
@@ -86,13 +95,13 @@ public class Board : MonoBehaviour
         }
     }
 
-    public void SaveBoardState(string path,BoardState boardState)
+    private void SaveBoardState(string path,BoardState boardState)
     {
         string json = Serialization(boardState);
         SaveToJsonFile(path, json);
     }
 
-    public BoardState LoadBoardState(string path)
+    private BoardState LoadBoardState(string path)
     {
         string json = LoadFromJsonFile(path);
         BoardState boardState = Deserialization(json);
@@ -125,7 +134,7 @@ public class Board : MonoBehaviour
         currentState.figuresOnBoardData = new List<FigureData>();
         CreateBoard(currentState);
     }
-    public string GetStreamingAssetsPath(string path)
+    private string GetStreamingAssetsPath(string path)
     {
         return Path.Combine(Application.streamingAssetsPath, path);
     }
@@ -186,7 +195,7 @@ public class Board : MonoBehaviour
         enabled = false;
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
     }
-    public void GenerateFigure(FigureData figureData)
+    private void GenerateFigure(FigureData figureData)
     {
         Vector3 figurePos = new Vector3(figureData.x, 1, figureData.y);
         GameObject figureGameObject;
@@ -197,7 +206,7 @@ public class Board : MonoBehaviour
         figureGameObject.GetComponent<Figure>().Data = figureData;
     }
 
-    public FigureData CreateFigureData(int x,int y, ref BoardState boardState)
+    private FigureData CreateFigureData(int x,int y, ref BoardState boardState)
     {
         FigureData data = new FigureData
         {
@@ -209,7 +218,7 @@ public class Board : MonoBehaviour
         return data;
     }
 
-    public Vector2Int RecordMousePosition()
+    private Vector2Int RecordMousePosition()
     {
         Vector2Int mouseDownPosition = Vector2Int.zero - Vector2Int.one;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -220,7 +229,7 @@ public class Board : MonoBehaviour
         }
         return mouseDownPosition;
     }
-    public void DestroyFigure(Figure figure, ref BoardState boardState)
+    private void DestroyFigure(Figure figure, ref BoardState boardState)
     {
         boardState.figuresOnBoardData.Remove(figure.Data);
         figure.Data = null;
