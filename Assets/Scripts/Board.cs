@@ -28,7 +28,7 @@ public class Board : MonoBehaviour
             var mouseDownPosition = RecordMousePosition();
             if (BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
             {
-                var boardCopyState = 
+                var boardCopyState =
                    BoardLogic.SimulateMove(currentState, mouseDownPosition.x, mouseDownPosition.y);
                 var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
                 foreach (var item in figuresDataToDestroy)
@@ -113,7 +113,7 @@ public class Board : MonoBehaviour
         currentState.size = boardSize;
         currentState.blackDeathCounter = 0;
         currentState.whiteDeathCounter = 0;
-        currentState.isWhiteTurn = true;
+        currentState.isWhiteTurn = false;
         currentState.figuresOnBoardData = new List<FigureData>();
         CreateBoard(currentState);
     }

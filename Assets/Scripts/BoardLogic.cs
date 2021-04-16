@@ -17,18 +17,8 @@ public static class BoardLogic
 
         if (board[finalPosition.x, finalPosition.y] != null)
             return false;
-        
-        List<Vector2Int> cellsAround = GetAroundCellsCoords(finalPosition);
-        foreach (var cell in cellsAround)
-        {
-            if (IsOutOfBounds(boardState, cell))
-                continue;
-            if (board[cell.x, cell.y] == null
-            || board[cell.x, cell.y].isWhite == boardState.isWhiteTurn)
-                return true;
 
-        }
-        return false;
+        return true;
     }
     private static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
     {
@@ -88,12 +78,10 @@ public static class BoardLogic
             groups.Add(group);
             foreach (var figure in group)
             {
-                if (figuresDataCopy.Contains(figure))
-                {
-                    figuresDataCopy.Remove(figure);
-                    i = -1;
-                }
+                figuresDataCopy.Remove(figure);
             }
+            //To start The Cycle From the beginning
+            i = -1;
         }
         
         return groups;
@@ -150,7 +138,13 @@ public static class BoardLogic
     }
     public static BoardState SimulateMove(BoardState currentBoardState,int x,int y)
     {
-        BoardState boardStateCopy = currentBoardState;
+        BoardState boardStateCopy;
+        boardStateCopy.figuresOnBoardData = new List<FigureData>();
+        boardStateCopy.figuresOnBoardData.AddRange(currentBoardState.figuresOnBoardData);
+        boardStateCopy.size = currentBoardState.size;
+        boardStateCopy.isWhiteTurn = currentBoardState.isWhiteTurn;
+        boardStateCopy.blackDeathCounter = currentBoardState.blackDeathCounter;
+        boardStateCopy.whiteDeathCounter = currentBoardState.whiteDeathCounter;
         FigureData data = new FigureData
         {
             x = x,
