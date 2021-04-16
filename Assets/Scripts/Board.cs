@@ -16,6 +16,7 @@ public class Board : MonoBehaviour
     private const float highOfTheCamera = 7.23f;
     private readonly Vector3 borderInitialScale = new Vector3(0.1f, 1, 0.1f);
     private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
+    private const string saveFilePath = "Save.json";
     private void Start()
     {
         enabled = false;
@@ -70,7 +71,6 @@ public class Board : MonoBehaviour
 
     public void SaveToJsonFile(string path,string json)
     {
-        path = Path.Combine(Application.streamingAssetsPath, path);
         using (StreamWriter streamWriter = new StreamWriter(path))
         {
             streamWriter.Write(json);
@@ -79,8 +79,7 @@ public class Board : MonoBehaviour
 
     public string LoadFromJsonFile(string path)
     {
-        string validpath = Path.Combine(Application.streamingAssetsPath, path);
-        using (StreamReader reader = new StreamReader(validpath))
+        using (StreamReader reader = new StreamReader(path))
         {
             string json = reader.ReadToEnd();
             return json;
@@ -90,7 +89,6 @@ public class Board : MonoBehaviour
     public void SaveBoardState(string path,BoardState boardState)
     {
         string json = Serialization(boardState);
-
         SaveToJsonFile(path, json);
     }
 
@@ -101,13 +99,15 @@ public class Board : MonoBehaviour
         return boardState;
     }
 
-    public void SaveCurrentState(string path)
+    public void SaveCurrentState()
     {
+        string path  = GetStreamingAssetsPath(saveFilePath);
         SaveBoardState(path, currentState);
     }
 
-    public void LoadCurrentState(string path)
+    public void LoadCurrentState()
     {
+        string path = GetStreamingAssetsPath(saveFilePath);
         enabled = true;
         currentState.figuresOnBoardData = new List<FigureData>();
         DestroyBoard();
@@ -124,6 +124,10 @@ public class Board : MonoBehaviour
         currentState.isWhiteTurn = false;
         currentState.figuresOnBoardData = new List<FigureData>();
         CreateBoard(currentState);
+    }
+    public string GetStreamingAssetsPath(string path)
+    {
+        return Path.Combine(Application.streamingAssetsPath, path);
     }
 
     private void CreateBoard(BoardState boardState)
