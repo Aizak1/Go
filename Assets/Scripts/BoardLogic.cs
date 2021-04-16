@@ -174,4 +174,54 @@ public static class BoardLogic
         boardStateCopy.figuresOnBoardData.Add(data);
         return boardStateCopy;
     }
+    public static int CalculateScoreDifference(BoardState boardState)
+    {
+        int blackScore = 0;
+        int whiteScore = 0;
+        FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
+        FigureData upPerpendicularElement = null;
+        FigureData downPerpendicularElement = null;
+        FigureData rightPerpendicularElement = null;
+        FigureData leftPerpendicularElement = null;
+       
+        foreach (var figureData in boardState.figuresOnBoardData)
+        {
+            board[figureData.x, figureData.y] = figureData;
+        }
+        for (int y = 0; y < board.GetLength(0); y++)
+        {
+            for (int x = 0; x < board.GetLength(1); x++)
+            {
+                if (board[y, x] == null)
+                {
+                    Vector2Int calculationPoint = new Vector2Int(x, y);
+                    upPerpendicularElement =
+                        CheckPerpendicular(boardState,board,calculationPoint,Vector2Int.up);
+                    downPerpendicularElement =
+                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.down);
+                    leftPerpendicularElement =
+                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.left);
+                    rightPerpendicularElement =
+                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.right);
+                  //Find equality of every point that depends on rools 
+                }
+            }
+        }
+        return Mathf.Abs(whiteScore - blackScore);
+    }
+
+    private static FigureData CheckPerpendicular(BoardState boardState,FigureData[,] 
+                                                board,Vector2Int calculationPoint,Vector2Int step)
+    {
+        while (!IsOutOfBounds(boardState,calculationPoint))
+        {
+            var element = board[calculationPoint.x, calculationPoint.y];
+            if (element != null)
+            {
+                return element;
+            }
+            calculationPoint += step;
+        }
+        return null;
+    }
 }
