@@ -279,9 +279,16 @@ public class Board : MonoBehaviour
         Vector3 figurePos = new Vector3(figureData.x, 1, figureData.y);
         GameObject figureGameObject;
         if (figureData.isWhite)
-           figureGameObject = Instantiate(whiteFigurePrefab, figurePos, Quaternion.identity);
+        {
+            figureGameObject = 
+                Instantiate(whiteFigurePrefab, figurePos, Quaternion.identity, transform);
+        }
         else
-           figureGameObject = Instantiate(blackFigurePrefab, figurePos, Quaternion.identity);
+        {
+           figureGameObject = 
+                Instantiate(blackFigurePrefab, figurePos, Quaternion.identity,transform);
+        }
+           
         figureGameObject.GetComponent<Figure>().Data = figureData;
     }
 
