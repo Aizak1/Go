@@ -26,6 +26,9 @@ public class Board : MonoBehaviour
     private void Start()
     {
         enabled = false;
+        currentState.figuresOnBoardData = new List<FigureData>();
+        currentState.previousWhiteTurnFigures = new List<FigureData>();
+        currentState.previousBlackTurnFigures = new List<FigureData>();
     }
 
     private void Update()
@@ -182,9 +185,6 @@ public class Board : MonoBehaviour
         enabled = true;
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
-        currentState.figuresOnBoardData = new List<FigureData>();
-        currentState.previousWhiteTurnFigures = new List<FigureData>();
-        currentState.previousBlackTurnFigures = new List<FigureData>();
         DestroyBoard();
         currentState = LoadBoardState(path);
         CreateBoard(currentState);
@@ -198,9 +198,6 @@ public class Board : MonoBehaviour
         currentState.whiteDeathCounter = 0;
         currentState.passCounter = 0;
         currentState.isWhiteTurn = false;
-        currentState.figuresOnBoardData = new List<FigureData>();
-        currentState.previousWhiteTurnFigures = new List<FigureData>();
-        currentState.previousBlackTurnFigures = new List<FigureData>();
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         CreateBoard(currentState);
