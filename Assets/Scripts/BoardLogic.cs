@@ -6,6 +6,11 @@ using UnityEngine;
 public static class BoardLogic
 {
     private const float komi = 6.5f;
+    private readonly static List<int> komiSizes = new List<int>() 
+    {
+        14,
+        18
+    };
     public static bool IsAbleToMove(BoardState boardState,Vector2Int finalPosition)
                                                           
     {
@@ -214,16 +219,9 @@ public static class BoardLogic
     public static BoardState SimulateGeneration(BoardState currentBoardState,int x,int y)
     {
         BoardState boardStateCopy;
+        boardStateCopy = currentBoardState;
         boardStateCopy.figuresOnBoardData = new List<FigureData>();
         boardStateCopy.figuresOnBoardData.AddRange(currentBoardState.figuresOnBoardData);
-        boardStateCopy.size = currentBoardState.size;
-        boardStateCopy.isWhiteTurn = currentBoardState.isWhiteTurn;
-        boardStateCopy.blackDeathCounter = currentBoardState.blackDeathCounter;
-        boardStateCopy.whiteDeathCounter = currentBoardState.whiteDeathCounter;
-        boardStateCopy.passCounter = currentBoardState.passCounter;
-        boardStateCopy.previousWhiteTurnFigures = currentBoardState.previousWhiteTurnFigures;
-        boardStateCopy.previousBlackTurnFigures = currentBoardState.previousBlackTurnFigures;
-        boardStateCopy.handicapCounter = currentBoardState.handicapCounter;
         FigureData data = new FigureData
         {
             x = x,
@@ -233,10 +231,10 @@ public static class BoardLogic
         boardStateCopy.figuresOnBoardData.Add(data);
         return boardStateCopy;
     }
-    public static int CalculateScoreDifference(BoardState boardState)
+    public static float CalculateScoreDifference(BoardState boardState)
     {
-        int blackScore = 0;
-        int whiteScore = 0;
+        float blackScore = 0;
+        float whiteScore = 0;
         FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
         List<FigureData> allDirectionElements = new List<FigureData>();
         List<Vector2Int> allDirections = new List<Vector2Int>()
@@ -306,6 +304,10 @@ public static class BoardLogic
         }
         whiteScore += boardState.blackDeathCounter;
         blackScore += boardState.whiteDeathCounter;
+        if (komiSizes.Contains(boardState.size))
+        {
+            whiteScore += komi;
+        }
         Debug.Log(whiteScore);
         Debug.Log(blackScore);
         return Mathf.Abs(whiteScore - blackScore);

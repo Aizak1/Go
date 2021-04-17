@@ -4,6 +4,7 @@ using UnityEngine;
 
 public struct BoardState
 {
+    //Size - in tiles.If size = 4 than board is 5 x 5 points
     public int size;
     public int passCounter;
     public int whiteDeathCounter;
