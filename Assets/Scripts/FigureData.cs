@@ -8,4 +8,5 @@ public class FigureData
     public bool isWhite;
     public int x;
     public int y;
+    
 }

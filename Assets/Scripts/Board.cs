@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-
+public enum GameState
+{
+    Started,
+    Finished
+}
 public class Board : MonoBehaviour
 {
     private BoardState currentState;
@@ -18,13 +22,20 @@ public class Board : MonoBehaviour
     private readonly Vector3 borderInitialScale = new Vector3(0.1f, 1, 0.1f);
     private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
     private const string saveFilePath = "Save.json";
+    private GameState gameState;
+    private List<List<FigureData>> history;
     private void Start()
     {
         enabled = false;
+        history =new List<List<FigureData>>();
     }
 
     private void Update()
     {
+        if(gameState == GameState.Finished)
+        {
+            return;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             var mouseDownPosition = RecordMousePosition();
@@ -32,22 +43,49 @@ public class Board : MonoBehaviour
             {
                 return;
             }
+           
             var boardCopyState =
-                 BoardLogic.SimulateMove(currentState, mouseDownPosition.x, mouseDownPosition.y);
+             BoardLogic.SimulateGeneration(currentState, mouseDownPosition.x, mouseDownPosition.y);
             var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
+            bool enemyGroupWillBeDestroyed = false;
             foreach (var item in figuresDataToDestroy)
             {
                 if (item.isWhite == currentState.isWhiteTurn)
                 {
-                    return;
+                    foreach (var figure in figuresDataToDestroy)
+                    {
+                        if (figure.isWhite != currentState.isWhiteTurn)
+                        {
+                            enemyGroupWillBeDestroyed = true;
+                            break;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                }
+                if (enemyGroupWillBeDestroyed)
+                {
+                    break;
                 }
             }
+            if (enemyGroupWillBeDestroyed)
+            {
+                figuresDataToDestroy.RemoveAll(x => x.isWhite == currentState.isWhiteTurn);
+            }
+            if (BoardLogic.IsRepeatThePosition(boardCopyState.figuresOnBoardData, 
+                                                history, figuresDataToDestroy))
+            {
+                return;
+            }
+
             var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
             GenerateFigure(figureData);
+
             var figures = FindObjectsOfType<Figure>();
             currentState.isWhiteTurn = !currentState.isWhiteTurn;
-            figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(currentState);
             foreach (var item in figures)
             {
                 if (figuresDataToDestroy.Contains(item.Data))
@@ -63,6 +101,15 @@ public class Board : MonoBehaviour
                     DestroyFigure(item, ref currentState);
                 }
             }
+            currentState.passCounter = 0;
+            var currentFiguresOnBoardData = new List<FigureData>(currentState.figuresOnBoardData);
+            history.Add(currentFiguresOnBoardData);
+        }
+        if (currentState.passCounter > 1)
+        {
+            gameState = GameState.Finished;
+            var scoreDifference = BoardLogic.CalculateScoreDifference(currentState);
+           //Debug.Log(scoreDifference);
         }
     }
 
@@ -112,12 +159,15 @@ public class Board : MonoBehaviour
     {
         string path  = GetStreamingAssetsPath(saveFilePath);
         SaveBoardState(path, currentState);
+       
     }
 
     public void LoadCurrentState()
     {
         string path = GetStreamingAssetsPath(saveFilePath);
         enabled = true;
+        gameState = GameState.Started;
+        uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         currentState.figuresOnBoardData = new List<FigureData>();
         DestroyBoard();
         currentState = LoadBoardState(path);
@@ -130,8 +180,11 @@ public class Board : MonoBehaviour
         currentState.size = boardSize;
         currentState.blackDeathCounter = 0;
         currentState.whiteDeathCounter = 0;
+        currentState.passCounter = 0;
         currentState.isWhiteTurn = false;
         currentState.figuresOnBoardData = new List<FigureData>();
+        gameState = GameState.Started;
+        uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         CreateBoard(currentState);
     }
     private string GetStreamingAssetsPath(string path)
@@ -170,7 +223,6 @@ public class Board : MonoBehaviour
             1,
             boardState.size * borderInitialScale.z + borderOffset
             );
-        uiSwitcher.HideAllUi();
     }
 
     private void DestroyBoard()
@@ -188,6 +240,12 @@ public class Board : MonoBehaviour
         currentState.figuresOnBoardData.Clear();
         border.transform.localScale = borderInitialScale;
         border.SetActive(false);
+        history.Clear();
+    }
+    public void Pass()
+    {
+        currentState.isWhiteTurn = !currentState.isWhiteTurn;
+        currentState.passCounter++;
     }
     public void Menu()
     {

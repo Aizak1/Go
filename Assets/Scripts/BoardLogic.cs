@@ -5,7 +5,9 @@ using UnityEngine;
 
 public static class BoardLogic
 {
+    private const float komi = 6.5f;
     public static bool IsAbleToMove(BoardState boardState,Vector2Int finalPosition)
+                                                          
     {
         FigureData[,] board = new FigureData[boardState.size+1, boardState.size+1];
         foreach (var figureData in boardState.figuresOnBoardData)
@@ -21,8 +23,48 @@ public static class BoardLogic
         {
             return false;
         }
+        
 
         return true;
+    }
+
+    public static bool IsRepeatThePosition(List<FigureData> figuresOnBoardData,
+                             List<List<FigureData>> history, List<FigureData> figuresDataToDestroy)
+    {
+        List<FigureData> simulatedFiguresOnBoard = new List<FigureData>();
+        foreach (var item in figuresOnBoardData)
+        {
+            if (!figuresDataToDestroy.Contains(item))
+            {
+                simulatedFiguresOnBoard.Add(item);
+            }
+        }
+        if (history.Count > 2)
+        {
+            bool isTheSame = true;
+            int previosTurnOfThisTeam = history.Count - 2;
+            if (simulatedFiguresOnBoard.Count != history[previosTurnOfThisTeam].Count)
+                return false;
+            for (int i = 0; i < simulatedFiguresOnBoard.Count; i++)
+            {
+                var item = simulatedFiguresOnBoard[i];
+                var historyItem = history[previosTurnOfThisTeam][i];
+                if (item.isWhite != historyItem.isWhite 
+                    || item.x != historyItem.x || item.y != historyItem.y)
+                {
+                    isTheSame = false;
+                }
+            }
+            if (isTheSame)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return false;
     }
 
     private static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
@@ -51,6 +93,7 @@ public static class BoardLogic
                 figuresDataToRemove.AddRange(group);
             }   
         }
+
         return figuresDataToRemove;
 
     }
@@ -132,7 +175,10 @@ public static class BoardLogic
             if(board[cell.x, cell.y]!=null && 
                board[cell.x,cell.y].isWhite == board[currentPosition.x, currentPosition.y].isWhite)
             {
-                group.Add(board[currentPosition.x, currentPosition.y]);
+                if (!group.Contains(board[currentPosition.x, currentPosition.y]))
+                {
+                    group.Add(board[currentPosition.x, currentPosition.y]);
+                }
                 if (!group.Contains(board[cell.x, cell.y]))
                 {
                     CreateGroup(boardState, board, cell, ref group);
@@ -156,7 +202,7 @@ public static class BoardLogic
         return cellsAround;
     }
 
-    public static BoardState SimulateMove(BoardState currentBoardState,int x,int y)
+    public static BoardState SimulateGeneration(BoardState currentBoardState,int x,int y)
     {
         BoardState boardStateCopy;
         boardStateCopy.figuresOnBoardData = new List<FigureData>();
@@ -165,6 +211,7 @@ public static class BoardLogic
         boardStateCopy.isWhiteTurn = currentBoardState.isWhiteTurn;
         boardStateCopy.blackDeathCounter = currentBoardState.blackDeathCounter;
         boardStateCopy.whiteDeathCounter = currentBoardState.whiteDeathCounter;
+        boardStateCopy.passCounter = currentBoardState.passCounter;
         FigureData data = new FigureData
         {
             x = x,
@@ -179,10 +226,19 @@ public static class BoardLogic
         int blackScore = 0;
         int whiteScore = 0;
         FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
-        FigureData upPerpendicularElement = null;
-        FigureData downPerpendicularElement = null;
-        FigureData rightPerpendicularElement = null;
-        FigureData leftPerpendicularElement = null;
+        List<FigureData> allDirectionElements = new List<FigureData>();
+        List<Vector2Int> allDirections = new List<Vector2Int>()
+        {
+            Vector2Int.up,
+            Vector2Int.down,
+            Vector2Int.right,
+            Vector2Int.left,
+            new Vector2Int(1,1),
+            new Vector2Int(1,-1),
+            new Vector2Int(-1,1),
+            new Vector2Int(-1,-1)
+        };
+
        
         foreach (var figureData in boardState.figuresOnBoardData)
         {
@@ -192,21 +248,54 @@ public static class BoardLogic
         {
             for (int x = 0; x < board.GetLength(1); x++)
             {
-                if (board[y, x] == null)
+                if (board[y, x] != null)
                 {
-                    Vector2Int calculationPoint = new Vector2Int(x, y);
-                    upPerpendicularElement =
-                        CheckPerpendicular(boardState,board,calculationPoint,Vector2Int.up);
-                    downPerpendicularElement =
-                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.down);
-                    leftPerpendicularElement =
-                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.left);
-                    rightPerpendicularElement =
-                        CheckPerpendicular(boardState, board, calculationPoint, Vector2Int.right);
-                  //Find equality of every point that depends on rools 
+                    continue;
                 }
+                Vector2Int calculationPoint = new Vector2Int(x, y);
+                foreach (var step in allDirections)
+                {
+                    allDirectionElements.Add(CheckPerpendicular(boardState, board, 
+                                                                calculationPoint, step));
+                }
+                foreach (var item in allDirectionElements)
+                {
+                    if (item == null)
+                    {
+                        continue;
+                    }  
+                    List<FigureData> allOtherDirectionsElems = new List<FigureData>();
+                    allOtherDirectionsElems.AddRange(allDirectionElements);
+                    allOtherDirectionsElems.Remove(item);
+                    List<FigureData> conditionalOtherDirectionsElems = new List<FigureData>();
+                    foreach (var elem in allOtherDirectionsElems)
+                    {
+                        if(elem == null || elem.isWhite == item.isWhite)
+                        {
+                            conditionalOtherDirectionsElems.Add(elem);
+                        }     
+                    }
+                    if (conditionalOtherDirectionsElems.Count == allOtherDirectionsElems.Count)
+                    {
+                        if(item.isWhite)
+                        {
+                            whiteScore++;
+                        }
+                        else
+                        {
+                            blackScore++;
+                        }
+                        break;
+                    }
+                }
+                allDirectionElements.Clear();
+               
             }
         }
+        whiteScore += boardState.blackDeathCounter;
+        blackScore += boardState.whiteDeathCounter;
+        Debug.Log(whiteScore);
+        Debug.Log(blackScore);
         return Mathf.Abs(whiteScore - blackScore);
     }
 
@@ -215,7 +304,7 @@ public static class BoardLogic
     {
         while (!IsOutOfBounds(boardState,calculationPoint))
         {
-            var element = board[calculationPoint.x, calculationPoint.y];
+            var element = board[calculationPoint.y, calculationPoint.x];
             if (element != null)
             {
                 return element;
