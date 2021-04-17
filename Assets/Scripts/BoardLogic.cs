@@ -223,6 +223,7 @@ public static class BoardLogic
         boardStateCopy.passCounter = currentBoardState.passCounter;
         boardStateCopy.previousWhiteTurnFigures = currentBoardState.previousWhiteTurnFigures;
         boardStateCopy.previousBlackTurnFigures = currentBoardState.previousBlackTurnFigures;
+        boardStateCopy.handicapCounter = currentBoardState.handicapCounter;
         FigureData data = new FigureData
         {
             x = x,

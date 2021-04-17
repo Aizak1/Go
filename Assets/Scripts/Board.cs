@@ -109,14 +109,21 @@ public class Board : MonoBehaviour
                 currentState.previousBlackTurnFigures = 
                     new List<FigureData>(currentState.figuresOnBoardData);
             }
-            currentState.isWhiteTurn = !currentState.isWhiteTurn;
+            //Variant of the rules,when after handicap still black Turn
+            if (currentState.handicapCounter != 0)
+            {
+                currentState.handicapCounter--;
+            }
+            else
+            {
+                currentState.isWhiteTurn = !currentState.isWhiteTurn;
+            }
             currentState.passCounter = 0;
         }
         if (currentState.passCounter > 1)
         {
             gameState = GameState.Finished;
             var scoreDifference = BoardLogic.CalculateScoreDifference(currentState);
-           //Debug.Log(scoreDifference);
         }
     }
 
@@ -198,6 +205,10 @@ public class Board : MonoBehaviour
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         CreateBoard(currentState);
     }
+    public void SetHandicapSize(int handicap)
+    {
+        currentState.handicapCounter = handicap;
+    }
     private string GetStreamingAssetsPath(string path)
     {
         return Path.Combine(Application.streamingAssetsPath, path);
@@ -253,6 +264,7 @@ public class Board : MonoBehaviour
         border.SetActive(false);
         currentState.previousBlackTurnFigures.Clear();
         currentState.previousWhiteTurnFigures.Clear();
+        currentState.handicapCounter = 0;
     }
     public void Pass()
     {

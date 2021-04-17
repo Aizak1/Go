@@ -35,9 +35,14 @@ public class UISwitcher : MonoBehaviour
 
     public void HideAllUi()
     {
-        mainMenu.enabled = false;
-        boardSizeMenu.enabled = false;
-        pauseMenu.enabled = false;
-        gameMenu.enabled = false;
+        //mainMenu.enabled = false;
+        //boardSizeMenu.enabled = false;
+        //pauseMenu.enabled = false;
+        //gameMenu.enabled = false;
+        var canvases = FindObjectsOfType<Canvas>();
+        foreach (var item in canvases)
+        {
+            item.enabled = false;
+        }
     }
 }

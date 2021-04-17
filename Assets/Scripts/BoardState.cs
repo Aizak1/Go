@@ -8,6 +8,7 @@ public struct BoardState
     public int passCounter;
     public int whiteDeathCounter;
     public int blackDeathCounter;
+    public int handicapCounter;
     public bool isWhiteTurn;
     public List<FigureData> figuresOnBoardData;
     public List<FigureData> previousWhiteTurnFigures;
