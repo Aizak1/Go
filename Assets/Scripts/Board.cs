@@ -23,11 +23,9 @@ public class Board : MonoBehaviour
     private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
     private const string saveFilePath = "Save.json";
     private GameState gameState;
-    private List<List<FigureData>> history;
     private void Start()
     {
         enabled = false;
-        history =new List<List<FigureData>>();
     }
 
     private void Update()
@@ -74,8 +72,10 @@ public class Board : MonoBehaviour
             {
                 figuresDataToDestroy.RemoveAll(x => x.isWhite == currentState.isWhiteTurn);
             }
-            if (BoardLogic.IsRepeatThePosition(boardCopyState.figuresOnBoardData, 
-                                                history, figuresDataToDestroy))
+            if (BoardLogic.IsRepeatThePosition(currentState.isWhiteTurn,
+                                      boardCopyState.figuresOnBoardData, 
+                                      currentState.previousBlackTurnFigures, 
+                                      currentState.previousWhiteTurnFigures, figuresDataToDestroy))
             {
                 return;
             }
@@ -83,9 +83,7 @@ public class Board : MonoBehaviour
             var figureData =
                 CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
             GenerateFigure(figureData);
-
             var figures = FindObjectsOfType<Figure>();
-            currentState.isWhiteTurn = !currentState.isWhiteTurn;
             foreach (var item in figures)
             {
                 if (figuresDataToDestroy.Contains(item.Data))
@@ -101,9 +99,18 @@ public class Board : MonoBehaviour
                     DestroyFigure(item, ref currentState);
                 }
             }
+            if (currentState.isWhiteTurn)
+            {
+                currentState.previousWhiteTurnFigures = 
+                    new List<FigureData>(currentState.figuresOnBoardData);
+            }
+            else
+            {
+                currentState.previousBlackTurnFigures = 
+                    new List<FigureData>(currentState.figuresOnBoardData);
+            }
+            currentState.isWhiteTurn = !currentState.isWhiteTurn;
             currentState.passCounter = 0;
-            var currentFiguresOnBoardData = new List<FigureData>(currentState.figuresOnBoardData);
-            history.Add(currentFiguresOnBoardData);
         }
         if (currentState.passCounter > 1)
         {
@@ -169,6 +176,8 @@ public class Board : MonoBehaviour
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         currentState.figuresOnBoardData = new List<FigureData>();
+        currentState.previousWhiteTurnFigures = new List<FigureData>();
+        currentState.previousBlackTurnFigures = new List<FigureData>();
         DestroyBoard();
         currentState = LoadBoardState(path);
         CreateBoard(currentState);
@@ -183,6 +192,8 @@ public class Board : MonoBehaviour
         currentState.passCounter = 0;
         currentState.isWhiteTurn = false;
         currentState.figuresOnBoardData = new List<FigureData>();
+        currentState.previousWhiteTurnFigures = new List<FigureData>();
+        currentState.previousBlackTurnFigures = new List<FigureData>();
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         CreateBoard(currentState);
@@ -240,7 +251,8 @@ public class Board : MonoBehaviour
         currentState.figuresOnBoardData.Clear();
         border.transform.localScale = borderInitialScale;
         border.SetActive(false);
-        history.Clear();
+        currentState.previousBlackTurnFigures.Clear();
+        currentState.previousWhiteTurnFigures.Clear();
     }
     public void Pass()
     {

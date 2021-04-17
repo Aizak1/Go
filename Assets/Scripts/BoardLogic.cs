@@ -28,8 +28,9 @@ public static class BoardLogic
         return true;
     }
 
-    public static bool IsRepeatThePosition(List<FigureData> figuresOnBoardData,
-                             List<List<FigureData>> history, List<FigureData> figuresDataToDestroy)
+    public static bool IsRepeatThePosition(bool isWhiteTurn,List<FigureData> figuresOnBoardData,
+                  List<FigureData> blackPrevioutTurnData,List<FigureData> whitePrevioutTurnData,
+                  List<FigureData> figuresDataToDestroy)
     {
         List<FigureData> simulatedFiguresOnBoard = new List<FigureData>();
         foreach (var item in figuresOnBoardData)
@@ -39,32 +40,40 @@ public static class BoardLogic
                 simulatedFiguresOnBoard.Add(item);
             }
         }
-        if (history.Count > 2)
+        if (blackPrevioutTurnData.Count>0 && whitePrevioutTurnData.Count>0)
         {
-            bool isTheSame = true;
-            int previosTurnOfThisTeam = history.Count - 2;
-            if (simulatedFiguresOnBoard.Count != history[previosTurnOfThisTeam].Count)
-                return false;
-            for (int i = 0; i < simulatedFiguresOnBoard.Count; i++)
-            {
-                var item = simulatedFiguresOnBoard[i];
-                var historyItem = history[previosTurnOfThisTeam][i];
-                if (item.isWhite != historyItem.isWhite 
-                    || item.x != historyItem.x || item.y != historyItem.y)
-                {
-                    isTheSame = false;
-                }
-            }
-            if (isTheSame)
-            {
-                return true;
-            }
+            if (isWhiteTurn)
+                return IsPreviousTeamRepeatTheTurn(simulatedFiguresOnBoard, whitePrevioutTurnData);
             else
-            {
-                return false;
-            }
+                return IsPreviousTeamRepeatTheTurn(simulatedFiguresOnBoard, blackPrevioutTurnData);
         }
         return false;
+    }
+
+    private static bool IsPreviousTeamRepeatTheTurn(List<FigureData> simulatedFiguresOnBoard,
+                                                    List<FigureData> colorFiguresTurnData)
+    {
+        bool isTheSame = true;
+        if (simulatedFiguresOnBoard.Count != colorFiguresTurnData.Count)
+            return false;
+        for (int i = 0; i < simulatedFiguresOnBoard.Count; i++)
+        {
+            var item = simulatedFiguresOnBoard[i];
+            var historyItem = colorFiguresTurnData[i];
+            if (item.isWhite != historyItem.isWhite
+                || item.x != historyItem.x || item.y != historyItem.y)
+            {
+                isTheSame = false;
+            }
+        }
+        if (isTheSame)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
@@ -212,6 +221,8 @@ public static class BoardLogic
         boardStateCopy.blackDeathCounter = currentBoardState.blackDeathCounter;
         boardStateCopy.whiteDeathCounter = currentBoardState.whiteDeathCounter;
         boardStateCopy.passCounter = currentBoardState.passCounter;
+        boardStateCopy.previousWhiteTurnFigures = currentBoardState.previousWhiteTurnFigures;
+        boardStateCopy.previousBlackTurnFigures = currentBoardState.previousBlackTurnFigures;
         FigureData data = new FigureData
         {
             x = x,
