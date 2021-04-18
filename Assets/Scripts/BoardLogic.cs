@@ -60,26 +60,35 @@ public static class BoardLogic
     private static bool IsPreviousTeamRepeatTheTurn(List<FigureData> simulatedFiguresOnBoard,
                                                     List<FigureData> colorFiguresTurnData)
     {
-        bool isTheSame = true;
+        List<bool> sameFigureData = new List<bool>();
         if (simulatedFiguresOnBoard.Count != colorFiguresTurnData.Count)
             return false;
         for (int i = 0; i < simulatedFiguresOnBoard.Count; i++)
         {
-            var item = simulatedFiguresOnBoard[i];
-            var historyItem = colorFiguresTurnData[i];
-            if (item.isWhite != historyItem.isWhite
-                || item.x != historyItem.x || item.y != historyItem.y)
-            {
-                isTheSame = false;
-            }
+            sameFigureData.Add(false);
         }
-        if (isTheSame)
+        for (int i = 0; i < simulatedFiguresOnBoard.Count; i++)
         {
-            return true;
+            for (int j = 0; j < simulatedFiguresOnBoard.Count; j++)
+            {
+                var item = simulatedFiguresOnBoard[i];
+                var historyItem = colorFiguresTurnData[j];
+                if (item.isWhite == historyItem.isWhite
+                    || item.x == historyItem.x || item.y == historyItem.y)
+                {
+                    sameFigureData[i] = true;
+                    break;
+                }
+            }
+            
+        }
+        if (sameFigureData.Contains(false))
+        {
+            return false;
         }
         else
         {
-            return false;
+            return true;
         }
     }
 
@@ -239,6 +248,72 @@ public static class BoardLogic
         float blackScore = 0;
         float whiteScore = 0;
         FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
+        List<FigureData> allDirectionElements = new List<FigureData>();
+        List<Vector2Int> allDirections = new List<Vector2Int>()
+        {
+            Vector2Int.up,
+            Vector2Int.down,
+            Vector2Int.right,
+            Vector2Int.left,
+            new Vector2Int(1,1),
+            new Vector2Int(1,-1),
+            new Vector2Int(-1,1),
+            new Vector2Int(-1,-1)
+        };
+
+
+        foreach (var figureData in boardState.figuresOnBoardData)
+        {
+            board[figureData.x, figureData.y] = figureData;
+        }
+        for (int y = 0; y < board.GetLength(0); y++)
+        {
+            for (int x = 0; x < board.GetLength(1); x++)
+            {
+                if (board[y, x] != null)
+                {
+                    continue;
+                }
+                Vector2Int calculationPoint = new Vector2Int(x, y);
+                foreach (var step in allDirections)
+                {
+                    allDirectionElements.Add(CheckPerpendicular(boardState, board,
+                                                                calculationPoint, step));
+                }
+                foreach (var item in allDirectionElements)
+                {
+                    if (item == null)
+                    {
+                        continue;
+                    }
+                    List<FigureData> allOtherDirectionsElems = new List<FigureData>();
+                    allOtherDirectionsElems.AddRange(allDirectionElements);
+                    allOtherDirectionsElems.Remove(item);
+                    List<FigureData> conditionalOtherDirectionsElems = new List<FigureData>();
+                    foreach (var elem in allOtherDirectionsElems)
+                    {
+                        if (elem == null || elem.isWhite == item.isWhite)
+                        {
+                            conditionalOtherDirectionsElems.Add(elem);
+                        }
+                    }
+                    if (conditionalOtherDirectionsElems.Count == allOtherDirectionsElems.Count)
+                    {
+                        if (item.isWhite)
+                        {
+                            whiteScore++;
+                        }
+                        else
+                        {
+                            blackScore++;
+                        }
+                        break;
+                    }
+                }
+                allDirectionElements.Clear();
+
+            }
+        }
         whiteScore += boardState.blackDeathCounter;
         blackScore += boardState.whiteDeathCounter;
         if (komiSizes.Contains(boardState.size))
@@ -266,4 +341,5 @@ public static class BoardLogic
         }
         return null;
     }
+   
 }
