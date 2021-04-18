@@ -3,6 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameResult
+{
+    WhiteWins,
+    BlackWins,
+    Draw
+}
 public static class BoardLogic
 {
     private const float komi = 6.5f;
@@ -243,7 +249,7 @@ public static class BoardLogic
         return boardStateCopy;
     }
 
-    public static float CalculateScoreDifference(BoardState boardState)
+    public static GameResult GetGameResult(BoardState boardState)
     {
         float blackScore = 0;
         float whiteScore = 0;
@@ -270,7 +276,7 @@ public static class BoardLogic
         {
             for (int x = 0; x < board.GetLength(1); x++)
             {
-                if (board[y, x] != null)
+                if (board[x, y] != null)
                 {
                     continue;
                 }
@@ -320,9 +326,20 @@ public static class BoardLogic
         {
             whiteScore += komi;
         }
-        Debug.Log(whiteScore);
-        Debug.Log(blackScore);
-        return Mathf.Abs(whiteScore - blackScore);
+        GameResult gameresult;
+        if(whiteScore> blackScore)
+        {
+            gameresult = GameResult.WhiteWins;
+        }
+        else if(whiteScore< blackScore)
+        {
+            gameresult = GameResult.BlackWins;
+        }
+        else
+        {
+            gameresult = GameResult.Draw;
+        }
+        return gameresult;
     }
 
     private static FigureData CheckPerpendicular(BoardState boardState,FigureData[,] 

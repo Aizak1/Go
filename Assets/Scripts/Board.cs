@@ -126,7 +126,9 @@ public class Board : MonoBehaviour
         if (currentState.passCounter > 1)
         {
             gameState = GameState.Finished;
-            var scoreDifference = BoardLogic.CalculateScoreDifference(currentState);
+            var gameResult = BoardLogic.GetGameResult(currentState);
+            uiSwitcher.ChooseConrectUi(uiSwitcher.WinMenu);
+            uiSwitcher.SetWinText(gameResult);
         }
     }
 
