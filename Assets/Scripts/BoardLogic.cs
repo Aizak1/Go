@@ -8,6 +8,8 @@ public static class BoardLogic
     private const float komi = 6.5f;
     private readonly static List<int> komiSizes = new List<int>() 
     {
+        8,
+        12,
         14,
         18
     };
@@ -180,6 +182,7 @@ public static class BoardLogic
             group.Add(board[currentPosition.x, currentPosition.y]);
             return;
         }
+
         foreach (var cell in aroundCells)
         {
             if (IsOutOfBounds(boardState, cell))
@@ -203,7 +206,6 @@ public static class BoardLogic
         }
         
     }
-
     private static List<Vector2Int> GetAroundCellsCoords(Vector2Int finalPosition)
     {
         List<Vector2Int> cellsAround = new List<Vector2Int>()
@@ -231,77 +233,12 @@ public static class BoardLogic
         boardStateCopy.figuresOnBoardData.Add(data);
         return boardStateCopy;
     }
+
     public static float CalculateScoreDifference(BoardState boardState)
     {
         float blackScore = 0;
         float whiteScore = 0;
         FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
-        List<FigureData> allDirectionElements = new List<FigureData>();
-        List<Vector2Int> allDirections = new List<Vector2Int>()
-        {
-            Vector2Int.up,
-            Vector2Int.down,
-            Vector2Int.right,
-            Vector2Int.left,
-            new Vector2Int(1,1),
-            new Vector2Int(1,-1),
-            new Vector2Int(-1,1),
-            new Vector2Int(-1,-1)
-        };
-
-       
-        foreach (var figureData in boardState.figuresOnBoardData)
-        {
-            board[figureData.x, figureData.y] = figureData;
-        }
-        for (int y = 0; y < board.GetLength(0); y++)
-        {
-            for (int x = 0; x < board.GetLength(1); x++)
-            {
-                if (board[y, x] != null)
-                {
-                    continue;
-                }
-                Vector2Int calculationPoint = new Vector2Int(x, y);
-                foreach (var step in allDirections)
-                {
-                    allDirectionElements.Add(CheckPerpendicular(boardState, board, 
-                                                                calculationPoint, step));
-                }
-                foreach (var item in allDirectionElements)
-                {
-                    if (item == null)
-                    {
-                        continue;
-                    }  
-                    List<FigureData> allOtherDirectionsElems = new List<FigureData>();
-                    allOtherDirectionsElems.AddRange(allDirectionElements);
-                    allOtherDirectionsElems.Remove(item);
-                    List<FigureData> conditionalOtherDirectionsElems = new List<FigureData>();
-                    foreach (var elem in allOtherDirectionsElems)
-                    {
-                        if(elem == null || elem.isWhite == item.isWhite)
-                        {
-                            conditionalOtherDirectionsElems.Add(elem);
-                        }     
-                    }
-                    if (conditionalOtherDirectionsElems.Count == allOtherDirectionsElems.Count)
-                    {
-                        if(item.isWhite)
-                        {
-                            whiteScore++;
-                        }
-                        else
-                        {
-                            blackScore++;
-                        }
-                        break;
-                    }
-                }
-                allDirectionElements.Clear();
-               
-            }
-        }
         whiteScore += boardState.blackDeathCounter;
         blackScore += boardState.whiteDeathCounter;
         if (komiSizes.Contains(boardState.size))
@@ -318,7 +255,9 @@ public static class BoardLogic
     {
         while (!IsOutOfBounds(boardState,calculationPoint))
         {
-            var element = board[calculationPoint.y, calculationPoint.x];
+            int y = calculationPoint.y;
+            int x = calculationPoint.x;
+            var element = board[x,y];
             if (element != null)
             {
                 return element;

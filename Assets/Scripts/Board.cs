@@ -17,8 +17,8 @@ public class Board : MonoBehaviour
     [SerializeField] private GameObject whiteFigurePrefab;
     [SerializeField] private GameObject blackFigurePrefab;
     private const float cellStartCoordinate = 0.5f;
-    private const float borderOffset = 0.01f;
-    private const float highOfTheCamera = 7.23f;
+    private const float borderOffset = 0.08f;
+    private const float cameraOffset = 3f;
     private readonly Vector3 borderInitialScale = new Vector3(0.1f, 1, 0.1f);
     private readonly Vector2 cellOffset = new Vector2(0.5f, 0.5f);
     private const string saveFilePath = "Save.json";
@@ -213,9 +213,10 @@ public class Board : MonoBehaviour
 
     private void CreateBoard(BoardState boardState)
     {
-        Camera.main.orthographicSize = boardState.size;
+        float hightofTheCamera = boardState.size + cameraOffset;
         float centerOfTheBoard = (float)boardState.size / 2;
-        Vector3 cameraRightPos = new Vector3(centerOfTheBoard, highOfTheCamera, centerOfTheBoard);
+        Vector3 cameraRightPos = new Vector3(centerOfTheBoard, 
+                                    hightofTheCamera, centerOfTheBoard);
         Camera.main.transform.position = cameraRightPos;
 
         border.SetActive(true);
