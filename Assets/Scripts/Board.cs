@@ -266,11 +266,28 @@ public class Board : MonoBehaviour
         currentState.previousWhiteTurnFigures.Clear();
         currentState.handicapCounter = 0;
     }
+
     public void Pass()
     {
         currentState.isWhiteTurn = !currentState.isWhiteTurn;
         currentState.passCounter++;
     }
+    public void Resign()
+    {
+        gameState = GameState.Finished;
+        GameResult gameResult;
+        if (currentState.isWhiteTurn)
+        {
+            gameResult = GameResult.BlackWins;
+        }
+        else
+        {
+            gameResult = GameResult.WhiteWins;
+        }
+        uiSwitcher.ChooseConrectUi(uiSwitcher.WinMenu);
+        uiSwitcher.SetWinText(gameResult);
+    }
+
     public void Menu()
     {
         DestroyBoard();
