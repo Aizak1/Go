@@ -102,6 +102,7 @@ public class Board : MonoBehaviour
                     DestroyFigure(item, ref currentState);
                 }
             }
+
             if (currentState.isWhiteTurn)
             {
                 currentState.previousWhiteTurnFigures = 
@@ -112,6 +113,7 @@ public class Board : MonoBehaviour
                 currentState.previousBlackTurnFigures = 
                     new List<FigureData>(currentState.figuresOnBoardData);
             }
+
             //Variant of the rules,when after handicap still black Turn
             if (currentState.handicapCounter != 0)
             {
@@ -121,6 +123,7 @@ public class Board : MonoBehaviour
             {
                 currentState.isWhiteTurn = !currentState.isWhiteTurn;
             }
+
             currentState.passCounter = 0;
         }
         if (currentState.passCounter > 1)
@@ -169,6 +172,11 @@ public class Board : MonoBehaviour
 
     private BoardState LoadBoardState(string path)
     {
+        if (!File.Exists(path))
+        {
+            BoardState emptyBoardState = new BoardState();
+            return emptyBoardState;
+        }
         string json = LoadFromJsonFile(path);
         BoardState boardState = Deserialization(json);
         return boardState;
@@ -176,20 +184,23 @@ public class Board : MonoBehaviour
 
     public void SaveCurrentState()
     {
-        string path  = GetStreamingAssetsPath(saveFilePath);
+        string path  = GetPersistentDataPath(saveFilePath);
         SaveBoardState(path, currentState);
        
     }
 
     public void LoadCurrentState()
     {
-        string path = GetStreamingAssetsPath(saveFilePath);
+        string path = GetPersistentDataPath(saveFilePath);
         enabled = true;
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         DestroyBoard();
         currentState = LoadBoardState(path);
-        CreateBoard(currentState);
+        if (currentState.figuresOnBoardData != null)
+        {
+            CreateBoard(currentState);
+        }
     }
 
     public void NewGame(int boardSize)
@@ -208,9 +219,9 @@ public class Board : MonoBehaviour
     {
         currentState.handicapCounter = handicap;
     }
-    private string GetStreamingAssetsPath(string path)
+    private string GetPersistentDataPath(string path)
     {
-        return Path.Combine(Application.streamingAssetsPath, path);
+        return Path.Combine(Application.persistentDataPath, path);
     }
 
     private void CreateBoard(BoardState boardState)
