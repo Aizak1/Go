@@ -80,7 +80,7 @@ public static class BoardLogic
                 var item = simulatedFiguresOnBoard[i];
                 var historyItem = colorFiguresTurnData[j];
                 if (item.isWhite == historyItem.isWhite
-                    || item.x == historyItem.x || item.y == historyItem.y)
+                    && item.x == historyItem.x && item.y == historyItem.y)
                 {
                     sameFigureData[i] = true;
                     break;
@@ -239,6 +239,10 @@ public static class BoardLogic
         boardStateCopy = currentBoardState;
         boardStateCopy.figuresOnBoardData = new List<FigureData>();
         boardStateCopy.figuresOnBoardData.AddRange(currentBoardState.figuresOnBoardData);
+        boardStateCopy.previousBlackTurnFigures = new List<FigureData>();
+        boardStateCopy.previousBlackTurnFigures.AddRange(currentBoardState.previousBlackTurnFigures);
+        boardStateCopy.previousWhiteTurnFigures = new List<FigureData>();
+        boardStateCopy.previousWhiteTurnFigures.AddRange(currentBoardState.previousWhiteTurnFigures);
         FigureData data = new FigureData
         {
             x = x,
