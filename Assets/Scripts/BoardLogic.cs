@@ -48,7 +48,7 @@ public static class BoardLogic
     /// <param name="blackPrevioutTurnData">Figures on last black turn</param>
     /// <param name="whitePrevioutTurnData">Figures on last white turn</param>
     /// <param name="figuresDataToDestroy">Figures that will be destoyed</param>
-    /// <returns>Uniformity of two methods</returns>
+    /// <returns>Uniformity of two positions on Board</returns>
     public static bool IsRepeatThePosition(bool isWhiteTurn,List<FigureData> figuresOnBoardData,
                   List<FigureData> blackPrevioutTurnData,List<FigureData> whitePrevioutTurnData,
                   List<FigureData> figuresDataToDestroy)
