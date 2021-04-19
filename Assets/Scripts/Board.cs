@@ -176,11 +176,6 @@ public class Board : MonoBehaviour
 
     private BoardState LoadBoardState(string path)
     {
-        if (!File.Exists(path))
-        {
-            BoardState emptyBoardState = new BoardState();
-            return emptyBoardState;
-        }
         string json = LoadFromJsonFile(path);
         BoardState boardState = Deserialization(json);
         return boardState;
@@ -196,21 +191,17 @@ public class Board : MonoBehaviour
     public void LoadCurrentState()
     {
         string path = GetPersistentDataPath(saveFilePath);
+        if (!File.Exists(path))
+        {
+            return;
+        }
         enabled = true;
         gameState = GameState.Started;
         uiSwitcher.ChooseConrectUi(uiSwitcher.GameMenu);
         DestroyBoard();
         currentState = LoadBoardState(path);
-        if (currentState.figuresOnBoardData != null)
-        {
-            CreateBoard(currentState);
-        }
-        else
-        {
-            currentState.figuresOnBoardData = new List<FigureData>();
-            currentState.previousWhiteTurnFigures = new List<FigureData>();
-            currentState.previousBlackTurnFigures = new List<FigureData>();
-        }
+        CreateBoard(currentState);
+        
     }
 
     public void NewGame(int boardSize)
@@ -311,10 +302,7 @@ public class Board : MonoBehaviour
 
     public void Menu()
     {
-        if (currentState.figuresOnBoardData != null)
-        {
-            DestroyBoard();
-        }
+        DestroyBoard();
         enabled = false;
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
     }
