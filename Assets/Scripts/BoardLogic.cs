@@ -40,7 +40,15 @@ public static class BoardLogic
 
         return true;
     }
-
+    /// <summary>
+    /// KO Rule
+    /// </summary>
+    /// <param name="isWhiteTurn">Current Turn</param>
+    /// <param name="figuresOnBoardData">Current Figures on Board</param>
+    /// <param name="blackPrevioutTurnData">Figures on last black turn</param>
+    /// <param name="whitePrevioutTurnData">Figures on last white turn</param>
+    /// <param name="figuresDataToDestroy">Figures that will be destoyed</param>
+    /// <returns>Uniformity of two methods</returns>
     public static bool IsRepeatThePosition(bool isWhiteTurn,List<FigureData> figuresOnBoardData,
                   List<FigureData> blackPrevioutTurnData,List<FigureData> whitePrevioutTurnData,
                   List<FigureData> figuresDataToDestroy)
