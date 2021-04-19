@@ -19,6 +19,7 @@ public static class BoardLogic
         14,
         18
     };
+
     public static bool IsAbleToMove(BoardState boardState,Vector2Int finalPosition)
                                                           
     {
@@ -37,9 +38,9 @@ public static class BoardLogic
             return false;
         }
         
-
         return true;
     }
+
     /// <summary>
     /// KO Rule
     /// </summary>
@@ -94,8 +95,8 @@ public static class BoardLogic
                     break;
                 }
             }
-            
         }
+
         if (sameFigureData.Contains(false))
         {
             return false;
@@ -178,7 +179,6 @@ public static class BoardLogic
             //To start The Cycle From the beginning
             i = -1;
         }
-        
         return groups;
     }
 
@@ -223,12 +223,10 @@ public static class BoardLogic
                 {
                     CreateGroup(boardState, board, cell, ref group);
                 }
-                
             }
-           
         }
-        
     }
+
     private static List<Vector2Int> GetAroundCellsCoords(Vector2Int finalPosition)
     {
         List<Vector2Int> cellsAround = new List<Vector2Int>()
@@ -248,9 +246,11 @@ public static class BoardLogic
         boardStateCopy.figuresOnBoardData = new List<FigureData>();
         boardStateCopy.figuresOnBoardData.AddRange(currentBoardState.figuresOnBoardData);
         boardStateCopy.previousBlackTurnFigures = new List<FigureData>();
-        boardStateCopy.previousBlackTurnFigures.AddRange(currentBoardState.previousBlackTurnFigures);
+        boardStateCopy.previousBlackTurnFigures.AddRange
+                                                (currentBoardState.previousBlackTurnFigures);
         boardStateCopy.previousWhiteTurnFigures = new List<FigureData>();
-        boardStateCopy.previousWhiteTurnFigures.AddRange(currentBoardState.previousWhiteTurnFigures);
+        boardStateCopy.previousWhiteTurnFigures.AddRange
+                                                (currentBoardState.previousWhiteTurnFigures);
         FigureData data = new FigureData
         {
             x = x,
