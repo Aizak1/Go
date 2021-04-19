@@ -48,7 +48,7 @@ public class Board : MonoBehaviour
             var boardCopyState =
              BoardLogic.SimulateGeneration(currentState, mouseDownPosition.x, mouseDownPosition.y);
             var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
-            bool enemyGroupWillBeDestroyed = false;
+            bool enemyGroupWillBeDestroyedDueSuicide = false;
             foreach (var item in figuresDataToDestroy)
             {
                 if (item.isWhite == currentState.isWhiteTurn)
@@ -57,21 +57,24 @@ public class Board : MonoBehaviour
                     {
                         if (figure.isWhite != currentState.isWhiteTurn)
                         {
-                            enemyGroupWillBeDestroyed = true;
+                            enemyGroupWillBeDestroyedDueSuicide = true;
                             break;
                         }
                         else
                         {
                             return;
                         }
+
                     }
                 }
-                if (enemyGroupWillBeDestroyed)
+                if (enemyGroupWillBeDestroyedDueSuicide)
                 {
                     break;
                 }
+                
             }
-            if (enemyGroupWillBeDestroyed)
+            //Eye rool
+            if (enemyGroupWillBeDestroyedDueSuicide)
             {
                 figuresDataToDestroy.RemoveAll(x => x.isWhite == currentState.isWhiteTurn);
             }
@@ -126,6 +129,7 @@ public class Board : MonoBehaviour
 
             currentState.passCounter = 0;
         }
+
         if (currentState.passCounter > 1)
         {
             gameState = GameState.Finished;
@@ -200,6 +204,12 @@ public class Board : MonoBehaviour
         if (currentState.figuresOnBoardData != null)
         {
             CreateBoard(currentState);
+        }
+        else
+        {
+            currentState.figuresOnBoardData = new List<FigureData>();
+            currentState.previousWhiteTurnFigures = new List<FigureData>();
+            currentState.previousBlackTurnFigures = new List<FigureData>();
         }
     }
 
@@ -301,7 +311,10 @@ public class Board : MonoBehaviour
 
     public void Menu()
     {
-        DestroyBoard();
+        if (currentState.figuresOnBoardData != null)
+        {
+            DestroyBoard();
+        }
         enabled = false;
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
     }
