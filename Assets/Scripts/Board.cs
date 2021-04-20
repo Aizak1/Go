@@ -40,6 +40,7 @@ public class Board : MonoBehaviour
             return;
         }
         var mouseDownPosition = RecordMousePosition();
+
         if (!BoardLogic.IsOutOfBounds(currentState, mouseDownPosition) 
          && !BoardLogic.HasFigureOnPosition(currentState,mouseDownPosition)) 
         {
@@ -51,12 +52,12 @@ public class Board : MonoBehaviour
         }
 
         if (Input.GetMouseButtonDown(0))
-        {  
+        {
             if (!BoardLogic.IsAbleToMoveByPosition(currentState, mouseDownPosition))
             {
                 return;
             }
-           
+
             var boardCopyState =
              BoardLogic.SimulateGeneration(currentState, mouseDownPosition.x, mouseDownPosition.y);
             var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
@@ -83,7 +84,6 @@ public class Board : MonoBehaviour
                 {
                     break;
                 }
-                
             }
             //Eye rool
             if (enemyGroupWillBeDestroyedDueSuicide)
@@ -91,55 +91,14 @@ public class Board : MonoBehaviour
                 figuresDataToDestroy.RemoveAll(x => x.isWhite == currentState.isWhiteTurn);
             }
             if (BoardLogic.IsRepeatThePosition(currentState.isWhiteTurn,
-                                      boardCopyState.figuresOnBoardData, 
-                                      currentState.previousBlackTurnFigures, 
+                                      boardCopyState.figuresOnBoardData,
+                                      currentState.previousBlackTurnFigures,
                                       currentState.previousWhiteTurnFigures, figuresDataToDestroy))
             {
                 return;
             }
 
-            var figureData =
-                CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
-            GenerateFigure(figureData);
-            var figures = FindObjectsOfType<Figure>();
-            foreach (var item in figures)
-            {
-                if (figuresDataToDestroy.Contains(item.Data))
-                {
-                    if (item.Data.isWhite)
-                    {
-                        currentState.whiteDeathCounter++;
-                    }
-                    else
-                    {
-                        currentState.blackDeathCounter++;
-                    }
-                    DestroyFigure(item, ref currentState);
-                }
-            }
-
-            if (currentState.isWhiteTurn)
-            {
-                currentState.previousWhiteTurnFigures = 
-                    new List<FigureData>(currentState.figuresOnBoardData);
-            }
-            else
-            {
-                currentState.previousBlackTurnFigures = 
-                    new List<FigureData>(currentState.figuresOnBoardData);
-            }
-
-            //Variant of the rules,when after handicap still black Turn
-            if (currentState.handicapCounter != 0)
-            {
-                currentState.handicapCounter--;
-            }
-            else
-            {
-                currentState.isWhiteTurn = !currentState.isWhiteTurn;
-            }
-
-            currentState.passCounter = 0;
+            MakeTurn(mouseDownPosition, figuresDataToDestroy);
         }
 
         if (currentState.passCounter > 1)
@@ -150,6 +109,53 @@ public class Board : MonoBehaviour
             uiSwitcher.SetWinText(gameResult);
         }
     }
+
+    private void MakeTurn(Vector2Int mouseDownPosition, List<FigureData> figuresDataToDestroy)
+    {
+        var figureData =
+            CreateFigureData(mouseDownPosition.x, mouseDownPosition.y, ref currentState);
+        GenerateFigure(figureData);
+        var figures = FindObjectsOfType<Figure>();
+        foreach (var item in figures)
+        {
+            if (figuresDataToDestroy.Contains(item.Data))
+            {
+                if (item.Data.isWhite)
+                {
+                    currentState.whiteDeathCounter++;
+                }
+                else
+                {
+                    currentState.blackDeathCounter++;
+                }
+                DestroyFigure(item, ref currentState);
+            }
+        }
+
+        if (currentState.isWhiteTurn)
+        {
+            currentState.previousWhiteTurnFigures =
+                new List<FigureData>(currentState.figuresOnBoardData);
+        }
+        else
+        {
+            currentState.previousBlackTurnFigures =
+                new List<FigureData>(currentState.figuresOnBoardData);
+        }
+
+        //Variant of the rules,when after handicap still black Turn
+        if (currentState.handicapCounter != 0)
+        {
+            currentState.handicapCounter--;
+        }
+        else
+        {
+            currentState.isWhiteTurn = !currentState.isWhiteTurn;
+        }
+
+        currentState.passCounter = 0;
+    }
+
     private void TurnOnDecorativeStones(bool isWhiteTurn,Vector2Int mouseDownPosition)
     {
         Vector3 decorativePosition = new Vector3(mouseDownPosition.x, 1, mouseDownPosition.y);
@@ -164,6 +170,7 @@ public class Board : MonoBehaviour
             decorativeBlack.transform.position = decorativePosition;               
         }
     }
+
     private void TurnOffDecorativeStones()
     {
         decorativeBlack.SetActive(false);
