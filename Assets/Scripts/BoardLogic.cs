@@ -265,7 +265,7 @@ public static class BoardLogic
         return boardStateCopy;
     }
 
-    public static GameResult GetGameResult(BoardState boardState)
+    public static GameResult CalculateGameResult(BoardState boardState)
     {
         float blackScore = 0;
         float whiteScore = 0;
