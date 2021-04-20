@@ -36,6 +36,18 @@ public static class BoardLogic
         
         return true;
     }
+    public static bool GroupWillBeDestroyed(List<FigureData> figuresDataToDestroy, 
+                                                                bool isWhiteTurn)
+    {
+        foreach (var item in figuresDataToDestroy)
+        {
+            if (item.isWhite == isWhiteTurn)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /// <summary>
     /// KO Rule

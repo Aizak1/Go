@@ -61,32 +61,16 @@ public class Board : MonoBehaviour
             var boardCopyState =
              BoardLogic.SimulateGeneration(currentState, mouseDownPosition.x, mouseDownPosition.y);
             var figuresDataToDestroy = BoardLogic.FindFiguresDataToRemove(boardCopyState);
-            bool enemyGroupWillBeDestroyedDueSuicide = false;
-            foreach (var item in figuresDataToDestroy)
-            {
-                if (item.isWhite == currentState.isWhiteTurn)
-                {
-                    foreach (var figure in figuresDataToDestroy)
-                    {
-                        if (figure.isWhite != currentState.isWhiteTurn)
-                        {
-                            enemyGroupWillBeDestroyedDueSuicide = true;
-                            break;
-                        }
-                        else
-                        {
-                            return;
-                        }
 
-                    }
-                }
-                if (enemyGroupWillBeDestroyedDueSuicide)
-                {
-                    break;
-                }
+            bool enemyGroupWillBeDestroyed = 
+                BoardLogic.GroupWillBeDestroyed(figuresDataToDestroy, !currentState.isWhiteTurn);
+            if(BoardLogic.GroupWillBeDestroyed(figuresDataToDestroy,currentState.isWhiteTurn) 
+                                                        && !enemyGroupWillBeDestroyed)
+            {
+                return;
             }
             //Eye rool
-            if (enemyGroupWillBeDestroyedDueSuicide)
+            if (enemyGroupWillBeDestroyed)
             {
                 figuresDataToDestroy.RemoveAll(x => x.isWhite == currentState.isWhiteTurn);
             }
