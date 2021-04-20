@@ -20,14 +20,10 @@ public static class BoardLogic
         18
     };
 
-    public static bool IsAbleToMove(BoardState boardState,Vector2Int finalPosition)
+    public static bool IsAbleToMoveByPosition(BoardState boardState,Vector2Int finalPosition)
                                                           
     {
-        FigureData[,] board = new FigureData[boardState.size+1, boardState.size+1];
-        foreach (var figureData in boardState.figuresOnBoardData)
-        {
-            board[figureData.x, figureData.y] = figureData;
-        }
+        FigureData[,] board = ConvertListOfFiguresToMatrix(boardState);
         if (IsOutOfBounds(boardState, finalPosition))
         {
             return false;
@@ -107,7 +103,7 @@ public static class BoardLogic
         }
     }
 
-    private static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
+    public static bool IsOutOfBounds(BoardState boardState, Vector2Int position)
     {
         if (position.x < 0 || position.y < 0 || position.x > boardState.size
         || position.y > boardState.size)
@@ -120,11 +116,7 @@ public static class BoardLogic
     public static List<FigureData> FindFiguresDataToRemove(BoardState boardState)
     {
         List<FigureData> figuresDataToRemove = new List<FigureData>();
-        FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
-        foreach (var figureData in boardState.figuresOnBoardData)
-        {
-            board[figureData.x, figureData.y] = figureData;
-        }
+        FigureData[,] board = ConvertListOfFiguresToMatrix(boardState);
         List<List<FigureData>> groups = FindGroups(boardState, board);
         foreach (var group in groups)
         {
@@ -265,7 +257,7 @@ public static class BoardLogic
     {
         float blackScore = 0;
         float whiteScore = 0;
-        FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
+        FigureData[,] board = ConvertListOfFiguresToMatrix(boardState);
         List<FigureData> allDirectionElements = new List<FigureData>();
         List<Vector2Int> allDirections = new List<Vector2Int>()
         {
@@ -279,11 +271,6 @@ public static class BoardLogic
             new Vector2Int(-1,-1)
         };
 
-
-        foreach (var figureData in boardState.figuresOnBoardData)
-        {
-            board[figureData.x, figureData.y] = figureData;
-        }
         for (int y = 0; y < board.GetLength(0); y++)
         {
             for (int x = 0; x < board.GetLength(1); x++)
@@ -369,6 +356,24 @@ public static class BoardLogic
             calculationPoint += step;
         }
         return null;
+    }
+    private static FigureData[,] ConvertListOfFiguresToMatrix(BoardState boardState)
+    {
+        FigureData[,] board = new FigureData[boardState.size + 1, boardState.size + 1];
+        foreach (var figureData in boardState.figuresOnBoardData)
+        {
+            board[figureData.x, figureData.y] = figureData;
+        }
+        return board;
+    }
+    public static bool HasFigureOnPosition(BoardState boardState,Vector2Int mouseDownPosition)
+    {
+        FigureData[,] board = ConvertListOfFiguresToMatrix(boardState);
+        if (board[mouseDownPosition.x, mouseDownPosition.y] != null)
+        {
+            return true;
+        }
+        return false;
     }
    
 }

@@ -16,6 +16,8 @@ public class Board : MonoBehaviour
     [SerializeField] private UISwitcher uiSwitcher;
     [SerializeField] private GameObject whiteFigurePrefab;
     [SerializeField] private GameObject blackFigurePrefab;
+    [SerializeField] private GameObject decorativeBlack;
+    [SerializeField] private GameObject decorativeWhite;
     private const float cellStartCoordinate = 0.5f;
     private const float borderOffset = 0.08f;
     private const float cameraOffset = 3f;
@@ -37,10 +39,20 @@ public class Board : MonoBehaviour
         {
             return;
         }
-        if (Input.GetMouseButtonDown(0))
+        var mouseDownPosition = RecordMousePosition();
+        if (!BoardLogic.IsOutOfBounds(currentState, mouseDownPosition) 
+         && !BoardLogic.HasFigureOnPosition(currentState,mouseDownPosition)) 
         {
-            var mouseDownPosition = RecordMousePosition();
-            if (!BoardLogic.IsAbleToMove(currentState, mouseDownPosition))
+            TurnOnDecorativeStones(currentState.isWhiteTurn, mouseDownPosition);
+        }
+        else
+        {
+            TurnOffDecorativeStones();
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {  
+            if (!BoardLogic.IsAbleToMoveByPosition(currentState, mouseDownPosition))
             {
                 return;
             }
@@ -137,6 +149,25 @@ public class Board : MonoBehaviour
             uiSwitcher.ChooseConrectUi(uiSwitcher.WinMenu);
             uiSwitcher.SetWinText(gameResult);
         }
+    }
+    private void TurnOnDecorativeStones(bool isWhiteTurn,Vector2Int mouseDownPosition)
+    {
+        Vector3 decorativePosition = new Vector3(mouseDownPosition.x, 1, mouseDownPosition.y);
+        decorativeWhite.SetActive(isWhiteTurn);
+        decorativeBlack.SetActive(!isWhiteTurn);
+        if (isWhiteTurn)
+        {
+            decorativeWhite.transform.position = decorativePosition;              
+        }
+        else
+        {
+            decorativeBlack.transform.position = decorativePosition;               
+        }
+    }
+    private void TurnOffDecorativeStones()
+    {
+        decorativeBlack.SetActive(false);
+        decorativeWhite.SetActive(false);
     }
 
     private string Serialization(BoardState boardState)
@@ -303,6 +334,7 @@ public class Board : MonoBehaviour
     public void Menu()
     {
         DestroyBoard();
+        TurnOffDecorativeStones();
         enabled = false;
         uiSwitcher.ChooseConrectUi(uiSwitcher.MainMenu);
     }
